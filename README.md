@@ -1,5 +1,5 @@
 ##
-## Copyright © 2025 Angel Gael Aguilar Reyes. Todos los derechos reservados.
+## Copyright © 2025. Todos los derechos reservados.
 ## Este material es para distribución exclusiva entre amigos del grupo.
 ## Prohibida su reproducción, modificación o distribución sin autorización expresa.
 ##
@@ -53,4 +53,5 @@ The `JAVA PROJECTS` view allows you to manage your dependencies. More details ca
  * VERIFICAR QUE FUNCIONÓ:
  * - En el panel izquierdo, expandir "JAVA PROJECTS"
  * - Verificar que aparezca en "Referenced Libraries"
+
  */
