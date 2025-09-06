@@ -1,15 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.AffineTransform;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
-import com.fazecast.jSerialComm.*;
-import com.studiohartman.jamepad.ControllerManager;
+import javax.swing.SwingWorker;
 import com.studiohartman.jamepad.ControllerState;
 
 /**
@@ -77,64 +71,52 @@ public class Jugar extends JFrame {
      * @return JPanel con las instrucciones.
      */
     private JPanel crearPanelInstrucciones() {
-        JPanel panel = new JPanel();
-        panel.setLayout(null);
+        JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(new Color(240, 248, 255));
 
-        JLabel lblTitulo = new JLabel("Control de Robot con Mando Xbox", SwingConstants.CENTER);
+        JLabel lblTitulo = new JLabel("Controles del Mando Xbox", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 32));
-        lblTitulo.setBounds(150, 30, 900, 40);
-        panel.add(lblTitulo);
+        panel.add(lblTitulo, BorderLayout.NORTH);
 
-        JTextArea instrucciones = new JTextArea(getInstruccionesPorTipoControl());
-        instrucciones.setFont(new Font("Arial", Font.PLAIN, 18));
-        instrucciones.setEditable(false);
-        instrucciones.setOpaque(false);
-        instrucciones.setBounds(100, 100, 1000, 500);
-        panel.add(instrucciones);
+        JPanel cards = new JPanel(new GridLayout(0, 1, 10, 10));
+        cards.setOpaque(false);
+        cards.setBorder(BorderFactory.createEmptyBorder(20, 150, 20, 150));
+        cards.add(crearTarjeta("Stick Izq", "Hombro/Codo"));
+        cards.add(crearTarjeta("Stick Der", "Muñeca/Rotación"));
+        cards.add(crearTarjeta("Gatillos (LT/RT)", "Abrir/Cerrar pinza"));
+        cards.add(crearTarjeta("D-Pad", "Velocidad ±"));
+        cards.add(crearTarjeta("A / B", "Preset 1 / Preset 2"));
+        cards.add(crearTarjeta("Start / Back", "Pausa / E-Stop"));
+        panel.add(cards, BorderLayout.CENTER);
 
-        JButton btnIniciar = new JButton("INICIAR");
-        btnIniciar.setBounds(500, 620, 200, 50);
-        btnIniciar.setBackground(new Color(40, 167, 69));
-        btnIniciar.setForeground(Color.WHITE);
-        btnIniciar.setFont(new Font("Arial", Font.BOLD, 16));
-        btnIniciar.setFocusPainted(false);
-        btnIniciar.addActionListener(e -> iniciarJuego());
-        panel.add(btnIniciar);
-        
-        // Listener para que el panel pueda obtener foco y recibir eventos de teclado
-        panel.setFocusable(true);
-        panel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                panel.requestFocusInWindow();
-            }
+        JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 20));
+        JButton btnMenu = new JButton("Regresar al menú");
+        JButton btnIniciar = new JButton("Jugar");
+        btnMenu.addActionListener(e -> {
+            Jugar.this.dispose();
+            new MenuGUI().setVisible(true);
         });
+        btnIniciar.addActionListener(e -> iniciarJuego());
+        botones.add(btnMenu);
+        botones.add(btnIniciar);
+        panel.add(botones, BorderLayout.SOUTH);
 
         return panel;
     }
 
-    /**
-     * Obtiene las instrucciones de control para el mando de Xbox.
-     * @return String con las instrucciones.
-     */
-    private String getInstruccionesPorTipoControl() {
-        return "¡Bienvenido al Control por Mando Xbox!\n\n" +
-                "Asegúrate de tener tu control Xbox conectado y el Arduino enchufado.\n" +
-                "La aplicación intentará conectarse automáticamente al iniciar.\n\n" +
-                "--- Controles de Servomotores ---\n" +
-                "• Stick Izquierdo (Horizontal): Mueve el Servo 1 (Base)\n" +
-                "• Stick Izquierdo (Vertical):   Mueve el Servo 2 (Hombro)\n" +
-                "• Stick Derecho (Vertical):     Mueve el Servo 3 (Codo)\n" +
-                "• Botones LB / RB:              Mueve el Servo 4 (Garra)\n\n" +
-                "--- Controles de Motores a Pasos ---\n" +
-                "• Gatillo Izquierdo (LT):       Activa el motor a pasos (Dirección 1)\n" +
-                "• Gatillo Derecho (RT):         Activa el motor a pasos (Dirección 2)\n" +
-                "  (Los motores se detienen al soltar el gatillo)\n\n" +
-                "--- Controles Especiales ---\n" +
-                "• Botón START: Centrar todos los servos a 90°\n" +
-                "• Botón BACK:   Volver al menú principal\n\n" +
-                "Presiona ENTER o el botón INICIAR para comenzar.";
+    private JPanel crearTarjeta(String titulo, String desc) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        JLabel t = new JLabel(titulo);
+        t.setFont(new Font("Arial", Font.BOLD, 16));
+        t.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        JLabel d = new JLabel(desc);
+        d.setFont(new Font("Arial", Font.PLAIN, 14));
+        d.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+        card.add(t, BorderLayout.NORTH);
+        card.add(d, BorderLayout.CENTER);
+        return card;
     }
 
     /**
@@ -151,31 +133,18 @@ public class Jugar extends JFrame {
     }
 
     /**
-     * Método principal para ejecutar la aplicación.
-     * @param args Argumentos de la línea de comandos.
-     */
-    public static void main(String[] args) {
-        // Establecer Look and Feel del sistema para una mejor apariencia
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        SwingUtilities.invokeLater(() -> new Jugar().setVisible(true));
-    }
-
-    /**
      * Panel principal del juego, gestiona la lógica de control y la visualización de estado.
      */
     class JuegoPanel extends JPanel {
         private JLabel lblEstado = new JLabel("Inicializando...");
-        private JLabel[] lblServos = new JLabel[4]; // Muestra los ángulos de los servos.
-
-        private int[] angulos = {90, 90, 90, 90}; // Ángulos para la visualización
-
+        private JLabel[] lblServos = new JLabel[4];
+        private int[] angulos = {90, 90, 90, 90};
         private ControlArduino controlArduino;
         private Timer gamepadTimer;
         private boolean salir = false;
+        private JProgressBar progreso = new JProgressBar(0, 100);
+        private JLabel progresoLabel = new JLabel();
+        private JButton btnCentrar;
 
         public JuegoPanel() {
             setLayout(null);
@@ -208,21 +177,30 @@ public class Jugar extends JFrame {
             lblEstado.setHorizontalAlignment(SwingConstants.CENTER);
             add(lblEstado);
 
-            JButton btnSalir = new JButton("Volver al Menú"); // Cambiado el texto del botón
-            btnSalir.setBounds(20, 20, 150, 35); // Ajuste de tamaño para el nuevo texto
+            JButton btnSalir = new JButton("Volver al Menú");
+            btnSalir.setBounds(20, 20, 150, 35);
             btnSalir.setBackground(new Color(220, 53, 69));
             btnSalir.setForeground(Color.WHITE);
             btnSalir.setFocusPainted(false);
             btnSalir.addActionListener(e -> salirAlMenu());
             add(btnSalir);
 
-            JButton btnCentrar = new JButton("Centrar Servos");
-            btnCentrar.setBounds(180, 20, 150, 35); // Ajuste de posición debido al cambio de tamaño del botón Salir
+            btnCentrar = new JButton("Centrar Servos");
+            btnCentrar.setBounds(180, 20, 170, 35);
             btnCentrar.setBackground(new Color(70, 130, 180));
             btnCentrar.setForeground(Color.WHITE);
             btnCentrar.setFocusPainted(false);
             btnCentrar.addActionListener(e -> centrarServos());
             add(btnCentrar);
+
+            progresoLabel.setBounds(300, 620, 600, 25);
+            progresoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            progresoLabel.setVisible(false);
+            add(progresoLabel);
+
+            progreso.setBounds(300, 650, 600, 20);
+            progreso.setVisible(false);
+            add(progreso);
         }
         
         /**
@@ -355,16 +333,58 @@ public class Jugar extends JFrame {
          * Envía el comando para centrar todos los servos y actualiza la GUI.
          */
         private void centrarServos() {
-            for (int i = 0; i < 4; i++) {
-                angulos[i] = 90;
+            btnCentrar.setEnabled(false);
+            progreso.setValue(0);
+            progreso.setVisible(true);
+            progresoLabel.setText("Regresando a origen...");
+            progresoLabel.setForeground(Color.YELLOW);
+            progresoLabel.setVisible(true);
+
+            if (controlArduino != null && controlArduino.arduino.getisOpen()) {
+                controlArduino.arduino.enviarDatos("c");
             }
-            // Envía un comando especial a Arduino para centrar todo.
-            // Asumimos que 'c' es el carácter que el código de Arduino usa para centrar.
-            if(controlArduino != null && controlArduino.arduino.getisOpen()) {
-                controlArduino.arduino.enviarDatos("c"); 
-            }
-            actualizarLabelsServos();
-            repaint();
+
+            SwingWorker<Void, Integer> worker = new SwingWorker<>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    int pasos = 50;
+                    for (int s = 0; s <= pasos; s++) {
+                        for (int i = 0; i < 4; i++) {
+                            if (angulos[i] < 90) angulos[i]++;
+                            else if (angulos[i] > 90) angulos[i]--;
+                        }
+                        publish(s * 100 / pasos);
+                        Thread.sleep(40);
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void process(java.util.List<Integer> chunks) {
+                    int v = chunks.get(chunks.size() - 1);
+                    progreso.setValue(v);
+                    actualizarLabelsServos();
+                    repaint();
+                }
+
+                @Override
+                protected void done() {
+                    progresoLabel.setText("Origen alcanzado");
+                    progresoLabel.setForeground(Color.GREEN);
+                    btnCentrar.setEnabled(true);
+                    Timer t = new Timer();
+                    t.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            SwingUtilities.invokeLater(() -> {
+                                progreso.setVisible(false);
+                                progresoLabel.setVisible(false);
+                            });
+                        }
+                    }, 1000);
+                }
+            };
+            worker.execute();
         }
 
         /**
@@ -379,10 +399,8 @@ public class Jugar extends JFrame {
                 if(controlArduino.controlXbox != null) controlArduino.controlXbox.shutdown();
             }
             
-            // Regresa al panel de instrucciones. El método iniciarJuego()
-            // que se llama desde el panel de instrucciones se encarga de llamar
-            // a reset() en JuegoPanel, lo que reinicia el estado.
-            Jugar.this.mostrarInstrucciones();
+            Jugar.this.dispose();
+            SwingUtilities.invokeLater(() -> new MenuGUI().setVisible(true));
         }
 
         /**
@@ -431,353 +449,58 @@ public class Jugar extends JFrame {
          * @param g Objeto Graphics para dibujar.
          */
         private void dibujarBrazoRobotico(Graphics g) {
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            int centroX = getWidth() / 2; // Centrar horizontalmente
-            int centroY = getHeight() / 2 + 150; // Posicionar más arriba para que el robot esté de pie
+            int cx = getWidth() / 2;
+            int cy = getHeight() / 2 + 100;
 
-            // Dibujar base del robot
-            g2d.setColor(new Color(60, 70, 80)); // Gris oscuro para la base
-            g2d.fillOval(centroX - 80, centroY - 20, 160, 40); // Elipse de la base
-            g2d.fillRect(centroX - 70, centroY - 40, 140, 40); // Rectángulo de la base
-            g2d.setColor(new Color(80, 90, 100)); // Gris más claro para la parte superior de la base
-            g2d.fillOval(centroX - 70, centroY - 50, 140, 40); // Elipse superior de la base
-            
-            // Guardar transformación actual
-            AffineTransform oldTransform = g2d.getTransform();
-            
-            // Mover el origen al centro de la base del brazo
-            g2d.translate(centroX, centroY - 50);
+            g2.setColor(new Color(80, 90, 100));
+            g2.fillOval(cx - 60, cy - 20, 120, 40);
 
-            // --- Brazo 1 (Hombro) ---
-            double l1 = 150; // Longitud del primer segmento del brazo
-            double a1 = -Math.toRadians(angulos[1]); // Ángulo del hombro (invertido para el dibujo vertical)
-            double rotBase = Math.toRadians(angulos[0] - 90); // Ángulo de la base (relativo a 90 para estar de pie)
+            double base = Math.toRadians(angulos[0] - 90);
+            double hombro = Math.toRadians(angulos[1] - 90);
+            double codo = Math.toRadians(angulos[2] - 90);
+            double l1 = 100, l2 = 100;
 
-            AffineTransform t1 = new AffineTransform();
-            t1.rotate(rotBase); // Rotar según la base
-            t1.rotate(a1);       // Rotar según el hombro
-            g2d.transform(t1);
+            double x1 = l1 * Math.cos(hombro) * Math.cos(base);
+            double y1 = l1 * Math.sin(hombro);
+            double z1 = l1 * Math.cos(hombro) * Math.sin(base);
 
-            g2d.setColor(new Color(180, 70, 70)); // Color rojizo para el segmento del brazo
-            g2d.fillRect(0, -15, (int) l1, 30); // Rectángulo del segmento del brazo
-            g2d.setColor(Color.DARK_GRAY); // Color de la articulación
-            g2d.fillOval(-15, -20, 40, 40); // Articulación del hombro
-            g2d.fillOval((int)l1-25, -20, 40, 40); // Articulación del codo
-            g2d.setColor(Color.YELLOW); // Acento en las articulaciones
-            g2d.fillOval((int)l1-15, -10, 20, 20);
+            double hombroTotal = hombro + codo;
+            double x2 = x1 + l2 * Math.cos(hombroTotal) * Math.cos(base);
+            double y2 = y1 + l2 * Math.sin(hombroTotal);
+            double z2 = z1 + l2 * Math.cos(hombroTotal) * Math.sin(base);
 
-            // --- Brazo 2 (Codo) ---
-            double l2 = 120; // Longitud del segundo segmento del brazo
-            double a2 = -Math.toRadians(angulos[2] - (180 - angulos[1])); // Ángulo relativo
-            g2d.translate(l1, 0); // Mover al final del brazo 1
-            g2d.rotate(a2);
+            Point p0 = project(0, 0, 0, cx, cy);
+            Point p1 = project(x1, y1, z1, cx, cy);
+            Point p2 = project(x2, y2, z2, cx, cy);
 
-            g2d.setColor(new Color(70, 180, 70)); // Color verdoso para el segmento del brazo
-            g2d.fillRect(0, -12, (int) l2, 24); // Rectángulo del segmento del brazo
-            g2d.setColor(Color.DARK_GRAY); // Color de la articulación
-            g2d.fillOval(-18, -18, 36, 36); // Articulación interna del codo
-            g2d.fillOval((int)l2-18, -18, 36, 36); // Articulación de la muñeca
-            g2d.setColor(Color.YELLOW); // Acento en las articulaciones
-            g2d.fillOval((int)l2-8, -8, 16, 16);
+            g2.setStroke(new BasicStroke(12, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2.setColor(new Color(180, 70, 70));
+            g2.drawLine(p0.x, p0.y, p1.x, p1.y);
+            g2.setColor(new Color(70, 180, 70));
+            g2.drawLine(p1.x, p1.y, p2.x, p2.y);
 
-            // --- Garra (Servo 3) ---
-            double a3 = Math.toRadians(angulos[3] - 90) / 2.0; // Ángulo de apertura de la garra
-            g2d.translate(l2, 0); // Mover al final del brazo 2
-            
-            // Garra superior
-            AffineTransform garraT = g2d.getTransform();
-            g2d.rotate(a3);
-            g2d.setColor(new Color(80, 80, 180)); // Color azulado para la garra
-            g2d.fillRect(0, -6, 50, 12); // Segmento de la garra
-            g2d.setTransform(garraT);
-
-            // Garra inferior
-            g2d.rotate(-a3);
-            g2d.setColor(new Color(80, 80, 180)); // Color azulado para la garra
-            g2d.fillRect(0, -6, 50, 12); // Segmento de la garra
-            g2d.setTransform(garraT);
-            
-            // Restaurar transformación original
-            g2d.setTransform(oldTransform);
-        }
-    }
-    
-    // =====================================================================================
-    // CLASE PuertoSerial 
-    // =====================================================================================
-    static class PuertoSerial {
-        private SerialPort port;
-        private InputStream inpstr;
-        private OutputStream outstrm;
-        private BufferedReader bufferedInput;
-
-        public PuertoSerial() {
-            System.out.println("Iniciando conexion Serial ...");
+            double garra = Math.toRadians(angulos[3] - 90) / 2.0;
+            int claw = 30;
+            Point g1 = project(
+                    x2 + claw * Math.cos(hombroTotal + garra) * Math.cos(base),
+                    y2 + claw * Math.sin(hombroTotal + garra),
+                    z2 + claw * Math.cos(hombroTotal + garra) * Math.sin(base), cx, cy);
+            Point g2p = project(
+                    x2 + claw * Math.cos(hombroTotal - garra) * Math.cos(base),
+                    y2 + claw * Math.sin(hombroTotal - garra),
+                    z2 + claw * Math.cos(hombroTotal - garra) * Math.sin(base), cx, cy);
+            g2.setColor(new Color(80, 80, 180));
+            g2.drawLine(p2.x, p2.y, g1.x, g1.y);
+            g2.drawLine(p2.x, p2.y, g2p.x, g2p.y);
         }
 
-        public void setPort(SerialPort port) { this.port = port; }
-        public String getPort() { return this.port.getSystemPortName(); }
-
-        public boolean detectarArduino() {
-            for (SerialPort p : SerialPort.getCommPorts()) {
-                if (p.getDescriptivePortName().toLowerCase().contains("arduino")) {
-                    this.port = p;
-                    System.out.println("Arduino detectado en: " + p.getSystemPortName());
-                    return true;
-                }
-            }
-            System.out.println("Arduino no detectado");
-            return false;
-        }
-        
-        public void listarPuertos() {
-            SerialPort[] ports = SerialPort.getCommPorts();
-            if (ports.length == 0) {
-                System.out.println("No hay puertos disponibles");
-                return;
-            }
-            for (int i = 0; i < ports.length; i++) {
-                System.out.println(i + ".- " + ports[i].getSystemPortName());
-            }
-        }
-        
-        public boolean seleccionarPuertoPorLista(int index) {
-            SerialPort[] ports = SerialPort.getCommPorts();
-            if (index < 0 || index >= ports.length) {
-                throw new IllegalArgumentException("El index seleccionado no es valido");
-            }
-            this.port = ports[index];
-            System.out.println("Puerto seleccionado: " + this.port.getDescriptivePortName());
-            return true;
-        }
-
-        public boolean getisOpen() { return this.port != null && this.port.isOpen(); }
-        public String getPortName() { return (this.port != null) ? this.port.getSystemPortName() : "No hay puerto seleccionado"; }
-
-        public void configurarPuerto(int bauds) {
-            if (this.port == null) {
-                throw new IllegalStateException("Puerto no seleccionado");
-            }
-            this.port.setComPortParameters(bauds, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
-        }
-        
-        public boolean abrirPuerto() {
-            if (this.port == null) throw new IllegalStateException("Puerto no seleccionado");
-            if (this.port.openPort()) {
-                System.out.println("Puerto abierto");
-                this.port.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100, 0);
-                try {
-                    this.inpstr = this.port.getInputStream();
-                    this.outstrm = this.port.getOutputStream();
-                    this.bufferedInput = new BufferedReader(new InputStreamReader(this.inpstr, "UTF-8"));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return true;
-            } else {
-                System.out.println("No se pudo abrir el puerto");
-                return false;
-            }
-        }
-
-        public void cerrarPuerto() {
-            try {
-                if (this.bufferedInput != null) this.bufferedInput.close();
-                if (this.inpstr != null) this.inpstr.close();
-                if (this.outstrm != null) this.outstrm.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (this.port != null && this.port.isOpen()) {
-                this.port.closePort();
-                System.out.println("Puerto cerrado");
-            }
-        }
-        
-        public void enviarDatos(String message) {
-            if (this.outstrm == null) {
-                System.out.println("Error: el puerto no está abierto para enviar datos.");
-                return;
-            }
-            try {
-                this.outstrm.write((message.trim() + "\n").getBytes());
-                this.outstrm.flush();
-                // System.out.println("Mensaje enviado: " + message); // Descomentar para depuración
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        public String recibirDatos() {
-            try {
-                if (this.bufferedInput != null && this.bufferedInput.ready()) {
-                    String dato = this.bufferedInput.readLine();
-                    return dato != null ? dato.trim() : "NO_DATA";
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "SYNTAX_ERROR";
-            }
-            return "NO_DATA";
-        }
-    }
-
-    // =====================================================================================
-    // CLASE ControlArduino
-    // =====================================================================================
-    static class ControlArduino {
-        protected ControlXbox controlXbox;
-        protected PuertoSerial arduino;
-        private ControllerState estadoAnterior;
-
-        public ControlArduino() {
-            this.controlXbox = new ControlXbox();
-            this.arduino = new PuertoSerial();
-        }
-        
-        public void mandarDatos() {
-            this.controlXbox.actualizarEstado();
-            ControllerState estadoActual = this.controlXbox.getState();
-            
-            if (estadoActual == null || !this.controlXbox.isConnected() || !this.arduino.getisOpen()) {
-                return; // Validaciones manejadas en el panel principal
-            }
-
-            // Si es el primer ciclo, inicializa estadoAnterior y sale.
-            if (estadoAnterior == null) {
-                estadoAnterior = estadoActual;
-                return;
-            }
-
-            // --- LÓGICA DE ENVÍO DE MOTORES A PASO ---
-            processTriggerOnChange("L", "S", estadoAnterior.leftTrigger, estadoActual.leftTrigger);
-            processTriggerOnChange("R", "S", estadoAnterior.rightTrigger, estadoActual.rightTrigger);
-
-            // --- LÓGICA PARA SERVOS CON JOYSTICKS Y BUMPERS ---
-            final float DEADZONE = 0.25f;
-
-            // SERVO 0: Joystick Izquierdo (Eje X)
-            if (estadoActual.leftStickX > DEADZONE) arduino.enviarDatos("k"); // Derecha
-            else if (estadoActual.leftStickX < -DEADZONE) arduino.enviarDatos("j"); // Izquierda
-
-            // SERVO 1: Joystick Izquierdo (Eje Y)
-            if (estadoActual.leftStickY < -DEADZONE) arduino.enviarDatos("i"); // Arriba
-            else if (estadoActual.leftStickY > DEADZONE) arduino.enviarDatos("m"); // Abajo
-
-            // SERVO 2: Joystick Derecho (Eje Y)
-            if (estadoActual.rightStickY < -DEADZONE) arduino.enviarDatos("o"); // Arriba
-            else if (estadoActual.rightStickY > DEADZONE) arduino.enviarDatos("p"); // Abajo
-
-            // SERVO 3: Botones LB y RB (se envían continuamente si se mantienen presionados)
-            if(estadoActual.lb) arduino.enviarDatos("q");
-            if(estadoActual.rb) arduino.enviarDatos("w");
-
-            // Al final, actualizamos el estado anterior para el próximo ciclo
-            estadoAnterior = estadoActual;
-        }
-
-        private void processTriggerOnChange(String cmdPresionar, String cmdSoltar, float valorAnterior, float valorActual) {
-            boolean estabaPresionado = valorAnterior > 0.1f;
-            boolean estaPresionado = valorActual > 0.1f;
-
-            if (!estabaPresionado && estaPresionado) {
-                arduino.enviarDatos(cmdPresionar);
-            } else if (estabaPresionado && !estaPresionado) {
-                arduino.enviarDatos(cmdSoltar);
-            }
-        }
-    }
-
-    // =====================================================================================
-    // CLASE ControlXbox
-    // =====================================================================================
-    static class ControlXbox {
-        private ControllerManager controllerManager;
-        private ControllerState state;
-        private int selectedController;
-
-        public enum Boton {
-            A, B, X, Y, START, BACK, LB, RB,
-            DPAD_UP, DPAD_DOWN, DPAD_LEFT, DPAD_RIGHT,
-            LEFT_STICK_CLICK, RIGHT_STICK_CLICK
-        }
-
-        public ControlXbox() {
-            controllerManager = new ControllerManager();
-            controllerManager.initSDLGamepad();
-            selectedController = -1;
-        }
-
-        public void listarControles() {
-            int count = controllerManager.getNumControllers();
-            System.out.println("Controles conectados: " + count);
-            for (int i = 0; i < count; i++) {
-                ControllerState tempState = controllerManager.getState(i);
-                System.out.println("ID " + i + ": " + (tempState.isConnected ? "Conectado" : "Desconectado"));
-            }
-        }
-
-        public boolean seleccionarControlPorLista(int index) {
-            if (index >= 0 && index < controllerManager.getNumControllers()) {
-                ControllerState tempState = controllerManager.getState(index);
-                if (tempState.isConnected) {
-                    selectedController = index;
-                    System.out.println("Control seleccionado: " + index);
-                    return true;
-                }
-            }
-            System.out.println("Control no válido o desconectado");
-            return false;
-        }
-
-        public boolean isConnected() {
-            actualizarEstado();
-            return state != null && state.isConnected;
-        }
-
-        public ControllerState getState() {
-            if (selectedController < 0 || selectedController >= controllerManager.getNumControllers()) {
-                // Intenta encontrar un control conectado si no hay ninguno seleccionado
-                for (int i = 0; i < controllerManager.getNumControllers(); i++) {
-                    if(controllerManager.getState(i).isConnected) {
-                        selectedController = i;
-                        System.out.println("Control autoseleccionado: " + i);
-                        break;
-                    }
-                }
-                 if (selectedController < 0) return null;
-            }
-            return controllerManager.getState(selectedController);
-        }
-
-        public void actualizarEstado() {
-            this.state = getState();
-        }
-
-        public boolean estaPresionado(Boton boton) {
-            if (state == null) return false;
-            return switch (boton) {
-                case A -> state.a;
-                case B -> state.b;
-                case X -> state.x;
-                case Y -> state.y;
-                case START -> state.start;
-                case BACK -> state.back;
-                case LB -> state.lb;
-                case RB -> state.rb;
-                case LEFT_STICK_CLICK -> state.leftStickClick;
-                case RIGHT_STICK_CLICK -> state.rightStickClick;
-                case DPAD_UP -> state.dpadUp;
-                case DPAD_DOWN -> state.dpadDown;
-                case DPAD_LEFT -> state.dpadLeft;
-                case DPAD_RIGHT -> state.dpadRight;
-            };
-        }
-        
-        public void shutdown() {
-            controllerManager.quitSDLGamepad();
+        private Point project(double x, double y, double z, int cx, int cy) {
+            double isoX = (x - z) * 0.707;
+            double isoY = y + (x + z) * 0.408;
+            return new Point((int) (cx + isoX), (int) (cy - isoY));
         }
     }
 }
