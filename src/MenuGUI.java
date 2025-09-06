@@ -35,9 +35,9 @@ public class MenuGUI extends JFrame {
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
         buttons.setBorder(BorderFactory.createEmptyBorder(100, 20, 100, 40));
 
-        JButton jugar = UIUtils.createButton("Jugar", new Color(34, 139, 34));
-        JButton config = UIUtils.createButton("Configuraciones", new Color(255, 140, 0));
-        JButton salir = UIUtils.createButton("Salir", new Color(178, 34, 34));
+        JButton jugar = UIUtils.createButton("Jugar", new Color(76, 175, 80));
+        JButton config = UIUtils.createButton("Configuraciones", new Color(255, 193, 7));
+        JButton salir = UIUtils.createButton("Salir", new Color(244, 67, 54));
 
         jugar.setAlignmentX(Component.CENTER_ALIGNMENT);
         config.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -65,7 +65,7 @@ public class MenuGUI extends JFrame {
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g;
-            GradientPaint gp = new GradientPaint(0, 0, new Color(0, 102, 204), 0, getHeight(), new Color(0, 0, 102));
+            GradientPaint gp = new GradientPaint(0, 0, new Color(33, 150, 243), 0, getHeight(), new Color(3, 30, 180));
             g2.setPaint(gp);
             g2.fillRect(0, 0, getWidth(), getHeight());
         }

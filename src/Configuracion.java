@@ -23,10 +23,10 @@ public class Configuracion extends JFrame {
         JLabel lblXbox = new JLabel("Control Xbox:");
         lblXbox.setFont(UIUtils.LABEL_FONT);
         xboxPanel.add(lblXbox);
-        statusXbox.setForeground(Color.RED);
+        statusXbox.setForeground(new Color(244, 67, 54));
         statusXbox.setFont(UIUtils.LABEL_FONT);
         xboxPanel.add(statusXbox);
-        JButton btnDetectXbox = UIUtils.createButton("Detectar", new Color(70, 130, 180));
+        JButton btnDetectXbox = UIUtils.createButton("Detectar", new Color(33, 150, 243));
         xboxPanel.add(btnDetectXbox);
         main.add(xboxPanel);
 
@@ -35,17 +35,17 @@ public class Configuracion extends JFrame {
         JLabel lblArduino = new JLabel("Arduino:");
         lblArduino.setFont(UIUtils.LABEL_FONT);
         arduinoPanel.add(lblArduino);
-        statusArduino.setForeground(Color.RED);
+        statusArduino.setForeground(new Color(244, 67, 54));
         statusArduino.setFont(UIUtils.LABEL_FONT);
         arduinoPanel.add(statusArduino);
-        JButton btnDetectArduino = UIUtils.createButton("Detectar", new Color(70, 130, 180));
+        JButton btnDetectArduino = UIUtils.createButton("Detectar", new Color(33, 150, 243));
         arduinoPanel.add(btnDetectArduino);
         main.add(arduinoPanel);
 
         // Panel inferior con botones de acción
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton btnGuardar = UIUtils.createButton("Guardar", new Color(34, 139, 34));
-        JButton btnRegresar = UIUtils.createButton("Regresar al menú", new Color(178, 34, 34));
+        JButton btnGuardar = UIUtils.createButton("Guardar", new Color(76, 175, 80));
+        JButton btnRegresar = UIUtils.createButton("Regresar al menú", new Color(244, 67, 54));
         bottom.add(btnGuardar);
         bottom.add(btnRegresar);
         main.add(Box.createVerticalGlue());
@@ -71,7 +71,7 @@ public class Configuracion extends JFrame {
     // Ejecuta detección en segundo plano con animación
     private void detectar(java.util.concurrent.Callable<Boolean> tarea, JLabel destino) {
         destino.setText("Buscando...");
-        destino.setForeground(Color.YELLOW);
+        destino.setForeground(new Color(33, 150, 243));
 
         JDialog dialog = new JDialog(this, "Buscando...", true);
         JProgressBar bar = new JProgressBar();
@@ -95,7 +95,7 @@ public class Configuracion extends JFrame {
                     ok = get();
                 } catch (Exception ignored) {}
                 destino.setText(ok ? "Detectado" : "No detectado");
-                destino.setForeground(ok ? Color.GREEN : Color.RED);
+                destino.setForeground(ok ? new Color(76, 175, 80) : new Color(244, 67, 54));
             }
         };
         worker.execute();

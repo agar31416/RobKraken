@@ -34,7 +34,8 @@ public class UIUtils {
         JButton b = new JButton(text);
         b.setFont(BUTTON_FONT);
         b.setBackground(bg);
-        b.setForeground(Color.WHITE);
+        int brightness = (int) ((bg.getRed() * 299 + bg.getGreen() * 587 + bg.getBlue() * 114) / 1000);
+        b.setForeground(brightness > 186 ? Color.BLACK : Color.WHITE);
         b.setFocusPainted(false);
         b.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
         return b;
