@@ -75,7 +75,7 @@ public class Jugar extends JFrame {
         panel.setBackground(new Color(240, 248, 255));
 
         JLabel lblTitulo = new JLabel("Controles del Mando Xbox", SwingConstants.CENTER);
-        lblTitulo.setFont(new Font("Arial", Font.BOLD, 32));
+        lblTitulo.setFont(UIUtils.TITLE_FONT);
         panel.add(lblTitulo, BorderLayout.NORTH);
 
         JPanel cards = new JPanel(new GridLayout(0, 1, 10, 10));
@@ -90,8 +90,8 @@ public class Jugar extends JFrame {
         panel.add(cards, BorderLayout.CENTER);
 
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 20));
-        JButton btnMenu = new JButton("Regresar al menú");
-        JButton btnIniciar = new JButton("Jugar");
+        JButton btnMenu = UIUtils.createButton("Regresar al menú", new Color(178, 34, 34));
+        JButton btnIniciar = UIUtils.createButton("Jugar", new Color(34, 139, 34));
         btnMenu.addActionListener(e -> {
             Jugar.this.dispose();
             new MenuGUI().setVisible(true);
@@ -109,10 +109,10 @@ public class Jugar extends JFrame {
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         JLabel t = new JLabel(titulo);
-        t.setFont(new Font("Arial", Font.BOLD, 16));
+        t.setFont(UIUtils.LABEL_FONT.deriveFont(Font.BOLD));
         t.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         JLabel d = new JLabel(desc);
-        d.setFont(new Font("Arial", Font.PLAIN, 14));
+        d.setFont(UIUtils.LABEL_FONT);
         d.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
         card.add(t, BorderLayout.NORTH);
         card.add(d, BorderLayout.CENTER);
@@ -154,7 +154,7 @@ public class Jugar extends JFrame {
             // Configurar etiquetas para mostrar el estado de los servos
             for (int i = 0; i < 4; i++) {
                 lblServos[i] = new JLabel("Servo " + (i + 1) + ": 90°");
-                lblServos[i].setFont(new Font("Arial", Font.PLAIN, 16));
+                lblServos[i].setFont(UIUtils.LABEL_FONT);
                 lblServos[i].setBounds(850, 100 + i * 30, 200, 25);
                 add(lblServos[i]);
             }
@@ -172,29 +172,24 @@ public class Jugar extends JFrame {
          * Configura los componentes de la interfaz de usuario en el panel del juego.
          */
         private void configurarInterfaz() {
-            lblEstado.setFont(new Font("Arial", Font.BOLD, 18));
+            lblEstado.setFont(UIUtils.LABEL_FONT.deriveFont(Font.BOLD, 18f));
             lblEstado.setBounds(300, 680, 600, 40);
             lblEstado.setHorizontalAlignment(SwingConstants.CENTER);
             add(lblEstado);
 
-            JButton btnSalir = new JButton("Volver al Menú");
+            JButton btnSalir = UIUtils.createButton("Volver al Menú", new Color(220, 53, 69));
             btnSalir.setBounds(20, 20, 150, 35);
-            btnSalir.setBackground(new Color(220, 53, 69));
-            btnSalir.setForeground(Color.WHITE);
-            btnSalir.setFocusPainted(false);
             btnSalir.addActionListener(e -> salirAlMenu());
             add(btnSalir);
 
-            btnCentrar = new JButton("Centrar Servos");
+            btnCentrar = UIUtils.createButton("Centrar Servos", new Color(70, 130, 180));
             btnCentrar.setBounds(180, 20, 170, 35);
-            btnCentrar.setBackground(new Color(70, 130, 180));
-            btnCentrar.setForeground(Color.WHITE);
-            btnCentrar.setFocusPainted(false);
             btnCentrar.addActionListener(e -> centrarServos());
             add(btnCentrar);
 
             progresoLabel.setBounds(300, 620, 600, 25);
             progresoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            progresoLabel.setFont(UIUtils.LABEL_FONT);
             progresoLabel.setVisible(false);
             add(progresoLabel);
 

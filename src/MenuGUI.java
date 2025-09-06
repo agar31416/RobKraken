@@ -35,10 +35,13 @@ public class MenuGUI extends JFrame {
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
         buttons.setBorder(BorderFactory.createEmptyBorder(100, 20, 100, 40));
 
-        Font btnFont = new Font("Arial", Font.BOLD, 24);
-        JButton jugar = createButton("Jugar", new Color(34, 139, 34), btnFont);
-        JButton config = createButton("Configuraciones", new Color(255, 140, 0), btnFont);
-        JButton salir = createButton("Salir", new Color(178, 34, 34), btnFont);
+        JButton jugar = UIUtils.createButton("Jugar", new Color(34, 139, 34));
+        JButton config = UIUtils.createButton("Configuraciones", new Color(255, 140, 0));
+        JButton salir = UIUtils.createButton("Salir", new Color(178, 34, 34));
+
+        jugar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        config.setAlignmentX(Component.CENTER_ALIGNMENT);
+        salir.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         buttons.add(jugar);
         buttons.add(Box.createVerticalStrut(30));
@@ -57,17 +60,6 @@ public class MenuGUI extends JFrame {
         salir.addActionListener(e -> System.exit(0));
     }
 
-    private JButton createButton(String text, Color bg, Font font) {
-        JButton b = new JButton(text);
-        b.setFont(font);
-        b.setBackground(bg);
-        b.setForeground(Color.WHITE);
-        b.setFocusPainted(false);
-        b.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        b.setAlignmentX(Component.CENTER_ALIGNMENT);
-        return b;
-    }
-
     private static class GradientPanel extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
@@ -80,6 +72,7 @@ public class MenuGUI extends JFrame {
     }
 
     public static void main(String[] args) {
+        UIUtils.setSystemLookAndFeel();
         SwingUtilities.invokeLater(() -> new MenuGUI().setVisible(true));
     }
 }
