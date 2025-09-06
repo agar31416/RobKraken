@@ -72,7 +72,7 @@ public class Jugar extends JFrame {
      */
     private JPanel crearPanelInstrucciones() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(new Color(240, 248, 255));
+        panel.setBackground(new Color(224, 255, 255));
 
         JLabel lblTitulo = new JLabel("Controles del Mando Xbox", SwingConstants.CENTER);
         lblTitulo.setFont(UIUtils.TITLE_FONT);
@@ -90,8 +90,8 @@ public class Jugar extends JFrame {
         panel.add(cards, BorderLayout.CENTER);
 
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 20));
-        JButton btnMenu = UIUtils.createButton("Regresar al menú", new Color(178, 34, 34));
-        JButton btnIniciar = UIUtils.createButton("Jugar", new Color(34, 139, 34));
+        JButton btnMenu = UIUtils.createButton("Regresar al menú", new Color(244, 67, 54));
+        JButton btnIniciar = UIUtils.createButton("Jugar", new Color(76, 175, 80));
         btnMenu.addActionListener(e -> {
             Jugar.this.dispose();
             new MenuGUI().setVisible(true);
@@ -148,7 +148,7 @@ public class Jugar extends JFrame {
 
         public JuegoPanel() {
             setLayout(null);
-            setBackground(new Color(230, 255, 230));
+            setBackground(new Color(240, 255, 240));
             configurarInterfaz();
 
             // Configurar etiquetas para mostrar el estado de los servos
@@ -177,12 +177,12 @@ public class Jugar extends JFrame {
             lblEstado.setHorizontalAlignment(SwingConstants.CENTER);
             add(lblEstado);
 
-            JButton btnSalir = UIUtils.createButton("Volver al Menú", new Color(220, 53, 69));
+            JButton btnSalir = UIUtils.createButton("Volver al Menú", new Color(244, 67, 54));
             btnSalir.setBounds(20, 20, 150, 35);
             btnSalir.addActionListener(e -> salirAlMenu());
             add(btnSalir);
 
-            btnCentrar = UIUtils.createButton("Centrar Servos", new Color(70, 130, 180));
+            btnCentrar = UIUtils.createButton("Centrar Servos", new Color(33, 150, 243));
             btnCentrar.setBounds(180, 20, 170, 35);
             btnCentrar.addActionListener(e -> centrarServos());
             add(btnCentrar);
@@ -332,7 +332,7 @@ public class Jugar extends JFrame {
             progreso.setValue(0);
             progreso.setVisible(true);
             progresoLabel.setText("Regresando a origen...");
-            progresoLabel.setForeground(Color.YELLOW);
+            progresoLabel.setForeground(new Color(33, 150, 243));
             progresoLabel.setVisible(true);
 
             if (controlArduino != null && controlArduino.arduino.getisOpen()) {
@@ -365,7 +365,7 @@ public class Jugar extends JFrame {
                 @Override
                 protected void done() {
                     progresoLabel.setText("Origen alcanzado");
-                    progresoLabel.setForeground(Color.GREEN);
+                    progresoLabel.setForeground(new Color(76, 175, 80));
                     btnCentrar.setEnabled(true);
                     Timer t = new Timer();
                     t.schedule(new TimerTask() {
@@ -450,8 +450,10 @@ public class Jugar extends JFrame {
             int cx = getWidth() / 2;
             int cy = getHeight() / 2 + 100;
 
-            g2.setColor(new Color(80, 90, 100));
+            GradientPaint baseGp = new GradientPaint(cx - 60, cy - 20, new Color(200, 200, 210), cx - 60, cy + 20, new Color(120, 120, 130));
+            g2.setPaint(baseGp);
             g2.fillOval(cx - 60, cy - 20, 120, 40);
+            g2.setPaint(null);
 
             double base = Math.toRadians(angulos[0] - 90);
             double hombro = Math.toRadians(angulos[1] - 90);
@@ -472,9 +474,11 @@ public class Jugar extends JFrame {
             Point p2 = project(x2, y2, z2, cx, cy);
 
             g2.setStroke(new BasicStroke(12, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2.setColor(new Color(180, 70, 70));
+            GradientPaint seg1 = new GradientPaint(p0.x, p0.y, new Color(255, 138, 128), p1.x, p1.y, new Color(244, 67, 54));
+            g2.setPaint(seg1);
             g2.drawLine(p0.x, p0.y, p1.x, p1.y);
-            g2.setColor(new Color(70, 180, 70));
+            GradientPaint seg2 = new GradientPaint(p1.x, p1.y, new Color(165, 214, 167), p2.x, p2.y, new Color(76, 175, 80));
+            g2.setPaint(seg2);
             g2.drawLine(p1.x, p1.y, p2.x, p2.y);
 
             double garra = Math.toRadians(angulos[3] - 90) / 2.0;
@@ -487,9 +491,16 @@ public class Jugar extends JFrame {
                     x2 + claw * Math.cos(hombroTotal - garra) * Math.cos(base),
                     y2 + claw * Math.sin(hombroTotal - garra),
                     z2 + claw * Math.cos(hombroTotal - garra) * Math.sin(base), cx, cy);
-            g2.setColor(new Color(80, 80, 180));
+            GradientPaint clawPaint = new GradientPaint(p2.x, p2.y, new Color(144, 202, 249), g1.x, g1.y, new Color(33, 150, 243));
+            g2.setPaint(clawPaint);
             g2.drawLine(p2.x, p2.y, g1.x, g1.y);
             g2.drawLine(p2.x, p2.y, g2p.x, g2p.y);
+            g2.setPaint(null);
+
+            g2.setColor(Color.DARK_GRAY);
+            g2.fillOval(p0.x - 6, p0.y - 6, 12, 12);
+            g2.fillOval(p1.x - 6, p1.y - 6, 12, 12);
+            g2.fillOval(p2.x - 6, p2.y - 6, 12, 12);
         }
 
         private Point project(double x, double y, double z, int cx, int cy) {
