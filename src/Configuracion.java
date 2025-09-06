@@ -20,26 +20,32 @@ public class Configuracion extends JFrame {
 
         // Sección Control Xbox
         JPanel xboxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        xboxPanel.add(new JLabel("Control Xbox:"));
+        JLabel lblXbox = new JLabel("Control Xbox:");
+        lblXbox.setFont(UIUtils.LABEL_FONT);
+        xboxPanel.add(lblXbox);
         statusXbox.setForeground(Color.RED);
+        statusXbox.setFont(UIUtils.LABEL_FONT);
         xboxPanel.add(statusXbox);
-        JButton btnDetectXbox = new JButton("Detectar");
+        JButton btnDetectXbox = UIUtils.createButton("Detectar", new Color(70, 130, 180));
         xboxPanel.add(btnDetectXbox);
         main.add(xboxPanel);
 
         // Sección Arduino
         JPanel arduinoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        arduinoPanel.add(new JLabel("Arduino:"));
+        JLabel lblArduino = new JLabel("Arduino:");
+        lblArduino.setFont(UIUtils.LABEL_FONT);
+        arduinoPanel.add(lblArduino);
         statusArduino.setForeground(Color.RED);
+        statusArduino.setFont(UIUtils.LABEL_FONT);
         arduinoPanel.add(statusArduino);
-        JButton btnDetectArduino = new JButton("Detectar");
+        JButton btnDetectArduino = UIUtils.createButton("Detectar", new Color(70, 130, 180));
         arduinoPanel.add(btnDetectArduino);
         main.add(arduinoPanel);
 
         // Panel inferior con botones de acción
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton btnGuardar = new JButton("Guardar");
-        JButton btnRegresar = new JButton("Regresar al menú");
+        JButton btnGuardar = UIUtils.createButton("Guardar", new Color(34, 139, 34));
+        JButton btnRegresar = UIUtils.createButton("Regresar al menú", new Color(178, 34, 34));
         bottom.add(btnGuardar);
         bottom.add(btnRegresar);
         main.add(Box.createVerticalGlue());
